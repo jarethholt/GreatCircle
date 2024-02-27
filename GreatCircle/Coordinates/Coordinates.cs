@@ -19,6 +19,7 @@ public class Coordinates
      *   normalized to the range [-180, 180).
      */
 
+    private const string _degreeSymbol = "\u00B0";
     private double _latitude;
     private double _longitude;
 
@@ -30,7 +31,9 @@ public class Coordinates
             // Check that latitude is between -90 and 90
             if (Math.Abs(value) > 90)
             {
-                throw new ArgumentOutOfRangeException(nameof(value), "The latitude must be between -90 and 90");
+                throw new ArgumentOutOfRangeException(
+                    nameof(value),
+                    "The latitude must be between -90 and 90");
             }
 
             // If the latitude is -90 or 90, set the longitude to 0
@@ -66,4 +69,39 @@ public class Coordinates
         Longitude = longitude;
         Latitude = latitude;
     }
+
+    public bool IsAPole()
+    {
+        // Determine whether the coordinate should be considered a polar point.
+        return MyMath.MyMath.IsCloseTo(Math.Abs(_latitude), 90);
+    }
+
+    public override string ToString()
+    {
+        // Pretty print the coordinates
+        return ToString("F2");
+    }
+
+    public string ToString(string fmt)
+    {
+        if (string.IsNullOrEmpty(fmt))
+        {
+            fmt = "F2";
+        }
+        string northOrSouth = Latitude >= 0 ? "N" : "S";
+        string eastOrWest = Longitude >= 0 ? "E" : "W";
+        string messageFormat = string.Format(
+            "{0}0:{2}{1}{3} {4}, {0}1:{2}{1}{3} {5}",
+            "{",
+            "}",
+            fmt,
+            _degreeSymbol,
+            northOrSouth,
+            eastOrWest);
+        return string.Format(messageFormat, Math.Abs(Latitude), Math.Abs(Longitude));
+    }
+
+    public static Coordinates NorthPole() => new(90, 0);
+    public static Coordinates SouthPole() => new(-90, 0);
+    public static Coordinates Origin() => new(0, 0);
 }
