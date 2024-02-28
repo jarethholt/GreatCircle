@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GreatCircle.MyMath;
+using GreatCircle.MyMathUtils;
 
 namespace GreatCircle.Coordinates;
 
-public class Coordinates
+public class Coordinate
 {
     /* Class representing location (in latitude and longitude) on a sphere.
      * 
@@ -37,7 +37,7 @@ public class Coordinates
             }
 
             // If the latitude is -90 or 90, set the longitude to 0
-            if (MyMath.MyMath.IsCloseTo(Math.Abs(value), 90))
+            if (MyMathUtils.MyMath.IsCloseTo(Math.Abs(value), 90))
             {
                 _longitude = 0;
             }
@@ -51,7 +51,7 @@ public class Coordinates
         set
         {
             // If the latitude is -90 or 90, keep longitude pinned at 0
-            if (MyMath.MyMath.IsCloseTo(Math.Abs(Latitude), 90))
+            if (MyMathUtils.MyMath.IsCloseTo(Math.Abs(Latitude), 90))
             {
                 _longitude = 0;
                 return;
@@ -64,7 +64,7 @@ public class Coordinates
         }
     }
 
-    public Coordinates(double latitude, double longitude)
+    public Coordinate(double latitude, double longitude)
     {
         Longitude = longitude;
         Latitude = latitude;
@@ -73,7 +73,7 @@ public class Coordinates
     public bool IsAPole()
     {
         // Determine whether the coordinate should be considered a polar point.
-        return MyMath.MyMath.IsCloseTo(Math.Abs(_latitude), 90);
+        return MyMathUtils.MyMath.IsCloseTo(Math.Abs(_latitude), 90);
     }
 
     public override string ToString()
@@ -101,17 +101,17 @@ public class Coordinates
         return string.Format(messageFormat, Math.Abs(Latitude), Math.Abs(Longitude));
     }
 
-    public bool IsCloseTo(Coordinates other)
+    public bool IsCloseTo(Coordinate other)
     {
         // Test if two coordinates are too close to consider distinct
         return 
-            MyMath.MyMath.AreClose(Longitude, other.Longitude)
-            && MyMath.MyMath.AreClose(Latitude, other.Latitude);
+            MyMathUtils.MyMath.AreClose(Longitude, other.Longitude)
+            && MyMathUtils.MyMath.AreClose(Latitude, other.Latitude);
     }
 
-    public static Coordinates NorthPole() => new(90, 0);
-    public static Coordinates SouthPole() => new(-90, 0);
-    public static Coordinates Origin() => new(0, 0);
-    public Coordinates GetAntipode() => new(-Latitude, Longitude + 180);
-    public bool IsAntipodalTo(Coordinates other) => IsCloseTo(other.GetAntipode());
+    public static Coordinate NorthPole() => new(90, 0);
+    public static Coordinate SouthPole() => new(-90, 0);
+    public static Coordinate Origin() => new(0, 0);
+    public Coordinate GetAntipode() => new(-Latitude, Longitude + 180);
+    public bool IsAntipodalTo(Coordinate other) => IsCloseTo(other.GetAntipode());
 }

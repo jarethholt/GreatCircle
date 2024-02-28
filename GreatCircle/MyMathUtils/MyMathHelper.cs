@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GreatCircle.MyMath;
+namespace GreatCircle.MyMathUtils;
 
 internal static class MyMathHelper
 {
