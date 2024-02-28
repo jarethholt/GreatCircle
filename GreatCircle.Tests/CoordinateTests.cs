@@ -1,6 +1,6 @@
 ﻿namespace GreatCircle.Tests;
 
-public class CoordinatesTests
+public class CoordinateTests
 {
     [Fact]
     public void Coordinates_Latitude_OutOfRange()
