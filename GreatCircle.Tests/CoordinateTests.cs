@@ -2,6 +2,7 @@
 
 public class CoordinateTests
 {
+    private string degreeSymbol = "\u00B0";
     [Fact]
     public void Coordinates_Latitude_OutOfRange()
     {
@@ -54,5 +55,61 @@ public class CoordinateTests
         Assert.True(
             Coordinates.Coordinate.Origin().IsAntipodalTo(
             new Coordinates.Coordinate(0, 180)));
+    }
+
+    [Fact]
+    public void String_Origin_DefaultFormat()
+    {
+        Assert.Equal(
+            $"0.00{degreeSymbol} N, 0.00{degreeSymbol} E",
+            Coordinates.Coordinate.Origin().ToString());
+    }
+
+    [Fact]
+    public void String_Origin_CustomFormat()
+    {
+        Assert.Equal(
+            $"0{degreeSymbol} N, 0{degreeSymbol} E",
+            Coordinates.Coordinate.Origin().ToString("F0"));
+    }
+
+    [Fact]
+    public void String_NorthEast_DefaultFormat()
+    {
+        double latitude = 10;
+        double longitude = 70;
+        Assert.Equal(
+            $"{latitude:F2}{degreeSymbol} N, {longitude:F2}{degreeSymbol} E",
+            new Coordinates.Coordinate(latitude, longitude).ToString());
+    }
+
+    [Fact]
+    public void String_NorthWest_DefaultFormat()
+    {
+        double latitude = 10;
+        double longitude = -70;
+        Assert.Equal(
+            $"{latitude:F2}{degreeSymbol} N, {-longitude:F2}{degreeSymbol} W",
+            new Coordinates.Coordinate(latitude, longitude).ToString());
+    }
+
+    [Fact]
+    public void String_SouthEast_DefaultFormat()
+    {
+        double latitude = -10;
+        double longitude = 70;
+        Assert.Equal(
+            $"{-latitude:F2}{degreeSymbol} S, {longitude:F2}{degreeSymbol} E",
+            new Coordinates.Coordinate(latitude, longitude).ToString());
+    }
+
+    [Fact]
+    public void String_SouthWest_DefaultFormat()
+    {
+        double latitude = -10;
+        double longitude = -70;
+        Assert.Equal(
+            $"{-latitude:F2}{degreeSymbol} S, {-longitude:F2}{degreeSymbol} W",
+            new Coordinates.Coordinate(latitude, longitude).ToString());
     }
 }
