@@ -101,7 +101,17 @@ public class Coordinates
         return string.Format(messageFormat, Math.Abs(Latitude), Math.Abs(Longitude));
     }
 
+    public bool IsCloseTo(Coordinates other)
+    {
+        // Test if two coordinates are too close to consider distinct
+        return 
+            MyMath.MyMath.AreClose(Longitude, other.Longitude)
+            && MyMath.MyMath.AreClose(Latitude, other.Latitude);
+    }
+
     public static Coordinates NorthPole() => new(90, 0);
     public static Coordinates SouthPole() => new(-90, 0);
     public static Coordinates Origin() => new(0, 0);
+    public Coordinates GetAntipode() => new(-Latitude, -Longitude);
+    public bool IsAntipodalTo(Coordinates other) => IsCloseTo(other.GetAntipode());
 }
