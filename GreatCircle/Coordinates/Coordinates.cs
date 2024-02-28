@@ -112,6 +112,6 @@ public class Coordinates
     public static Coordinates NorthPole() => new(90, 0);
     public static Coordinates SouthPole() => new(-90, 0);
     public static Coordinates Origin() => new(0, 0);
-    public Coordinates GetAntipode() => new(-Latitude, -Longitude);
+    public Coordinates GetAntipode() => new(-Latitude, Longitude + 180);
     public bool IsAntipodalTo(Coordinates other) => IsCloseTo(other.GetAntipode());
 }
