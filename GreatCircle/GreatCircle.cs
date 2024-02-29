@@ -27,16 +27,28 @@ internal class GreatCirclePath
      *   NB: At the moment purely meridional paths are not implemented, so
      *   this field is constrained to (-180, 0) and (0, 180).
      */
+    private const double _degToRad = Math.PI / 180;
+    private const double _radToDeg = 180.0 / Math.PI;
+
     public readonly double initialLatitude;
     public readonly double initialLongitude;
     public readonly double initialAzimuth;
+    public readonly double nodeAzimuth;
+    public readonly double nodeLongitude;
+    public readonly double angularDistance_NodeToInitial;
+
     private readonly double _sinInitLat;
     private readonly double _cosInitLat;
     private readonly double _sinInitLon;
     private readonly double _cosInitLon;
     private readonly double _sinInitAzi;
     private readonly double _cosInitAzi;
-    private const double _degToRad = Math.PI / 180;
+    private readonly double _sinNodeAzi;
+    private readonly double _cosNodeAzi;
+    private readonly double _sinAngDistNodeToInit;
+    private readonly double _cosAngDistNodeToInit;
+    private readonly double _sinLonDiffNodeToInit;
+    private readonly double _cosLonDiffNodeToInit;
 
     public GreatCirclePath(
         double initialLatitude,
@@ -72,6 +84,30 @@ internal class GreatCirclePath
         (_sinInitLat, _cosInitLat) = Math.SinCos(this.initialLatitude * _degToRad);
         (_sinInitLon, _cosInitLon) = Math.SinCos(this.initialLongitude * _degToRad);
         (_sinInitAzi, _cosInitAzi) = Math.SinCos(this.initialAzimuth * _degToRad);
+
+        // Calculate location of the ascending node
+        _sinNodeAzi = _sinInitAzi * _cosInitLat;
+        _cosNodeAzi = Math.Sqrt(
+            _cosInitAzi * _cosInitAzi
+            + _sinInitAzi * _sinInitAzi * _cosInitLat * _cosInitLat);
+        nodeAzimuth = Math.Atan2(_sinNodeAzi, _cosNodeAzi) * _radToDeg;
+
+        double tanInitLat = _sinInitLat / _cosInitLat;
+        angularDistance_NodeToInitial = Math.Atan2(tanInitLat, _cosInitAzi) * _radToDeg;
+        (_sinAngDistNodeToInit, _cosAngDistNodeToInit) = _SinCosFromAtan2Args(
+            tanInitLat, _cosInitAzi);
+        (_sinLonDiffNodeToInit, _cosLonDiffNodeToInit) = _SinCosFromAtan2Args(
+            _sinNodeAzi * _sinAngDistNodeToInit,
+            _cosAngDistNodeToInit);
+        nodeLongitude = initialLongitude - Math.Atan2(
+            _sinNodeAzi * _sinAngDistNodeToInit,
+            _cosAngDistNodeToInit) * _radToDeg;
+    }
+
+    private static (double, double) _SinCosFromAtan2Args(double y, double x)
+    {
+        double norm = Math.Sqrt(x * x + y * y);
+        return (y / norm, x / norm);
     }
 
 }
