@@ -8,28 +8,28 @@ public class GreatCirclePathTests
     public void Path_InitialPoint_Polar()
     {
         Assert.Throws<NotImplementedException>(
-            () => new GreatCirclePath(Coordinates.Coordinate.NorthPole, 10));
+            () => new GreatCirclePath(Coordinate.NorthPole, 10));
     }
 
     [Fact]
     public void Path_Azimuth_Northward()
     {
         Assert.Throws<NotImplementedException>(
-            () => new GreatCirclePath(Coordinates.Coordinate.Origin, 0));
+            () => new GreatCirclePath(Coordinate.Origin, 0));
     }
 
     [Fact]
     public void Path_Azimuth_Southward()
     {
         Assert.Throws<NotImplementedException>(
-            () => new GreatCirclePath(Coordinates.Coordinate.Origin, 180));
+            () => new GreatCirclePath(Coordinate.Origin, 180));
     }
 
     [Fact]
     public void Path_Azimuth_NorthwardWrapped()
     {
         Assert.Throws<NotImplementedException>(
-            () => new GreatCirclePath(Coordinates.Coordinate.Origin, 360 - 1e-8));
+            () => new GreatCirclePath(Coordinate.Origin, 360 - 1e-8));
     }
 
     [Fact]

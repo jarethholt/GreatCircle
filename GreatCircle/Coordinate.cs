@@ -1,8 +1,6 @@
 ﻿// Class describing a coordinate (latitude/longitude) on the sphere.
 
-using GreatCircle.MyMathUtils;
-
-namespace GreatCircle.Coordinates;
+namespace GreatCircle;
 
 public readonly struct Coordinate
 {
@@ -78,16 +76,16 @@ public readonly struct Coordinate
     }
 
     // Determine whether the coordinate should be considered a polar point.
-    public bool IsAPole => MyMath.IsCloseTo(Math.Abs(Latitude), 90);
+    public bool IsAPole => Utilities.IsCloseTo(Math.Abs(Latitude), 90);
 
     public bool IsCloseTo(Coordinate other)
     {
         // Test if two coordinates are too close to consider distinct
         // Polar coordinates can be given with any longitude
-        bool result = MyMath.AreClose(Latitude, other.Latitude);
-        if (this.IsAPole || other.IsAPole)
+        bool result = Utilities.AreClose(Latitude, other.Latitude);
+        if (IsAPole || other.IsAPole)
             return result;
-        result &= MyMath.AreClose(Longitude, other.Longitude);
+        result &= Utilities.AreClose(Longitude, other.Longitude);
         return result;
     }
 

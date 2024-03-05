@@ -1,14 +1,14 @@
 ﻿// Utility for checking whether doubles are close within a tolerance
 
-namespace GreatCircle.MyMathUtils;
+namespace GreatCircle;
 
-public struct MyMathDefaults
+public struct ToleranceDefaults
 {
     public const double relativeTolerance = 1e-6;
     public const double absoluteTolerance = 1e-6;
 }
 
-public static class MyMath
+public static class Utilities
 {
     public const double degToRad = Math.PI / 180;
     public const double radToDeg = 180.0 / Math.PI;
@@ -17,8 +17,8 @@ public static class MyMath
     public static bool IsCloseTo(
         double value,
         double target,
-        double relativeTolerance = MyMathDefaults.relativeTolerance,
-        double absoluteTolerance = MyMathDefaults.absoluteTolerance)
+        double relativeTolerance = ToleranceDefaults.relativeTolerance,
+        double absoluteTolerance = ToleranceDefaults.absoluteTolerance)
     {
         /* Determine whether a given value is close to the target.
          * Based on numpy.isclose, comparing the absolute error to a combined tolerance.
@@ -29,8 +29,8 @@ public static class MyMath
     public static bool AreClose(
         double value1,
         double value2,
-        double relativeTolerance = MyMathDefaults.relativeTolerance,
-        double absoluteTolerance = MyMathDefaults.absoluteTolerance)
+        double relativeTolerance = ToleranceDefaults.relativeTolerance,
+        double absoluteTolerance = ToleranceDefaults.absoluteTolerance)
     {
         /* Determine whether two values are close to each other.
          * Based on numpy.isclose but treats value1 and value2 symmetrically.
