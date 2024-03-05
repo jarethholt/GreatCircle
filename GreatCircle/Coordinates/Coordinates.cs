@@ -7,7 +7,7 @@ using GreatCircle.MyMathUtils;
 
 namespace GreatCircle.Coordinates;
 
-public class Coordinate
+public readonly struct Coordinate
 {
     /* Class representing location (in latitude and longitude) on a sphere.
      * 
@@ -18,62 +18,41 @@ public class Coordinate
      * - Longitude: Longitude in degrees E. Any value can be given but it will be
      *   normalized to the range [-180, 180).
      */
-
     private const string _degreeSymbol = "\u00B0";
-    private double _latitude;
-    private double _longitude;
+    private readonly double _latitude;
+    private readonly double _longitude;
+
+    public Coordinate(double latitude, double longitude)
+    {
+        Latitude = latitude;
+        Longitude = longitude;
+    }
 
     public double Latitude
     {
-        get { return _latitude; }
-        set
+        readonly get => _latitude;
+        init
         {
             // Check that latitude is between -90 and 90
             if (Math.Abs(value) > 90)
-            {
                 throw new ArgumentOutOfRangeException(
                     nameof(value),
                     "The latitude must be between -90 and 90");
-            }
 
-            // If the latitude is -90 or 90, set the longitude to 0
-            if (MyMathUtils.MyMath.IsCloseTo(Math.Abs(value), 90))
-            {
-                _longitude = 0;
-            }
             _latitude = value;
         }
     }
 
     public double Longitude
     {
-        get { return _longitude; }
-        set
+        readonly get => _longitude;
+        init
         {
-            // If the latitude is -90 or 90, keep longitude pinned at 0
-            if (MyMathUtils.MyMath.IsCloseTo(Math.Abs(Latitude), 90))
-            {
-                _longitude = 0;
-                return;
-            }
-
             // Place the value in the range [0, 360)
             value %= 360;
-            // Place the value in the range [-180, 180)
+            // Place the longitude in the range [-180, 180)
             _longitude = value < 180 ? value : value - 360;
         }
-    }
-
-    public Coordinate(double latitude, double longitude)
-    {
-        Longitude = longitude;
-        Latitude = latitude;
-    }
-
-    public bool IsAPole()
-    {
-        // Determine whether the coordinate should be considered a polar point.
-        return MyMathUtils.MyMath.IsCloseTo(Math.Abs(_latitude), 90);
     }
 
     public override string ToString()
@@ -101,17 +80,23 @@ public class Coordinate
         return string.Format(messageFormat, Math.Abs(Latitude), Math.Abs(Longitude));
     }
 
+    // Determine whether the coordinate should be considered a polar point.
+    public bool IsAPole => MyMath.IsCloseTo(Math.Abs(Latitude), 90);
+
     public bool IsCloseTo(Coordinate other)
     {
         // Test if two coordinates are too close to consider distinct
-        return 
-            MyMathUtils.MyMath.AreClose(Longitude, other.Longitude)
-            && MyMathUtils.MyMath.AreClose(Latitude, other.Latitude);
+        // Polar coordinates can be given with any longitude
+        bool result = MyMath.AreClose(Latitude, other.Latitude);
+        if (this.IsAPole || other.IsAPole)
+            return result;
+        result &= MyMath.AreClose(Longitude, other.Longitude);
+        return result;
     }
 
-    public static Coordinate NorthPole() => new(90, 0);
-    public static Coordinate SouthPole() => new(-90, 0);
-    public static Coordinate Origin() => new(0, 0);
-    public Coordinate GetAntipode() => new(-Latitude, Longitude + 180);
-    public bool IsAntipodalTo(Coordinate other) => IsCloseTo(other.GetAntipode());
+    public static Coordinate NorthPole => new(90, 0);
+    public static Coordinate SouthPole => new(-90, 0);
+    public static Coordinate Origin => new(0, 0);
+    public Coordinate Antipode => new(-Latitude, Longitude + 180);
+    public bool IsAntipodalTo(Coordinate other) => IsCloseTo(other.Antipode);
 }
