@@ -23,18 +23,11 @@ public readonly struct GreatCirclePath
 
     private readonly Coordinate _initialCoordinate;
     private readonly double _initialAzimuth;
-    private readonly double _cosInitLat;
-    private readonly double _tanInitLat;
-    private readonly double _sinInitAzi;
-    private readonly double _cosInitAzi;
     private readonly double _nodeAzimuth;
     private readonly double _sinNodeAzi;
     private readonly double _cosNodeAzi;
     private readonly double _tanNodeAzi;
     private readonly double _nodeAngle;
-    private readonly double _sinNodeAngle;
-    private readonly double _cosNodeAngle;
-    private readonly double _nodeLonDiff;
     private readonly double _nodeLongitude;
 
     public readonly Coordinate InitialCoordinate
@@ -66,7 +59,8 @@ public readonly struct GreatCirclePath
                 || Utilities.IsCloseTo(value, 180)
                 || Utilities.IsCloseTo(value, 360))
                 throw new NotImplementedException(
-                    "Purely meridional paths (azimuth = 0 or 180) have not been implemented yet");
+                    "Purely meridional paths (azimuth = 0 or 180) "
+                    + "have not been implemented yet");
             _initialAzimuth = value;
         }
     }
@@ -81,23 +75,26 @@ public readonly struct GreatCirclePath
         InitialAzimuth = initialAzimuth;
 
         // Calculate the ascending node
-        (_, _cosInitLat)
+        (double sinInitLat, double cosInitLat)
             = Utilities.SinCosWithDegrees(InitialLatitude);
-        (_sinInitAzi, _cosInitAzi)
+        double tanInitLat = sinInitLat / cosInitLat;
+        (double sinInitAzi, double cosInitAzi)
             = Utilities.SinCosWithDegrees(InitialAzimuth);
-        _sinNodeAzi = _sinInitAzi * _cosInitLat;
+        _sinNodeAzi = sinInitAzi * cosInitLat;
         _cosNodeAzi = Math.Sqrt(1 - _sinNodeAzi * _sinNodeAzi);
         _tanNodeAzi = _sinNodeAzi / _cosNodeAzi;
         _nodeAzimuth = Utilities.Atan2ToDegrees(_sinNodeAzi, _cosNodeAzi);
         
-        (_sinNodeAngle, _cosNodeAngle, _nodeAngle)
-            = Utilities.SinCosAngleFromAtan2(_tanInitLat, _cosInitAzi);
+        (double sinNodeAngle, double cosNodeAngle, _nodeAngle)
+            = Utilities.SinCosAngleFromAtan2(tanInitLat, cosInitAzi);
 
-        _nodeLonDiff = Utilities.Atan2ToDegrees(_sinNodeAzi * _sinNodeAngle, _cosNodeAngle);
-        _nodeLongitude = InitialLongitude - _nodeLonDiff;
+        double nodeLonDiff = Utilities.Atan2ToDegrees(
+            _sinNodeAzi * sinNodeAngle, cosNodeAngle);
+        _nodeLongitude = InitialLongitude - nodeLonDiff;
     }
 
-    public GreatCirclePath(double initialLatitude, double initialLongitude, double initialAzimuth)
+    public GreatCirclePath(
+        double initialLatitude, double initialLongitude, double initialAzimuth)
         : this(new Coordinate(initialLatitude, initialLongitude), initialAzimuth) { }
 
     public override string ToString() => ToString("F2");
