@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Class describing a coordinate (latitude/longitude) on the sphere.
+
 using GreatCircle.MyMathUtils;
 
 namespace GreatCircle.Coordinates;
