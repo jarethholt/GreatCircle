@@ -41,8 +41,8 @@ public readonly struct GreatCirclePath
             // Check that the azimuth is not meridional
             if (
                 MyMathUtils.MyMath.IsCloseTo(value, 0)
-                || MyMathUtils.MyMath.IsCloseTo(value, 0)
-                || MyMathUtils.MyMath.IsCloseTo(value, 0))
+                || MyMathUtils.MyMath.IsCloseTo(value, 180)
+                || MyMathUtils.MyMath.IsCloseTo(value, -180))
                 throw new NotImplementedException(
                     "Purely meridional paths (azimuth = 0 or 180) have not been implemented yet");
             _initialAzimuth = value;
@@ -59,6 +59,24 @@ public readonly struct GreatCirclePath
     {
         InitialCoordinate = new(initialLatitude, initialLongitude);
         InitialAzimuth = initialAzimuth;
+    }
+
+    public override string ToString() => ToString("F2");
+
+    public string ToString(string fmt)
+    {
+        if (string.IsNullOrEmpty(fmt))
+            fmt = "F2";
+
+        string coordString = InitialCoordinate.ToString(fmt);
+        string aziFormat = string.Format(
+            "heading {0}0:{3}{1}{2}",
+            "{",
+            "}",
+            Coordinates.Coordinate.degreeSymbol,
+            fmt);
+        string aziString = string.Format(aziFormat, InitialAzimuth);
+        return $"{coordString}; {aziString}";
     }
 
 }
