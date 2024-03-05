@@ -20,8 +20,6 @@ public readonly struct GreatCirclePath
      *   NB: At the moment purely meridional paths are not implemented, so
      *   this field is constrained to (-180, 0) and (0, 180).
      */
-    private const double _degToRad = Math.PI / 180;
-    private const double _radToDeg = 180.0 / Math.PI;
 
     private readonly Coordinates.Coordinate _initialCoordinate;
     private readonly double _initialAzimuth;
@@ -86,5 +84,4 @@ public readonly struct GreatCirclePath
         string aziString = string.Format(aziFormat, InitialAzimuth);
         return $"{coordString}; {aziString}";
     }
-
 }
