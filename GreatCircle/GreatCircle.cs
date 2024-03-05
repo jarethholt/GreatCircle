@@ -61,4 +61,22 @@ public readonly struct GreatCirclePath
         InitialAzimuth = initialAzimuth;
     }
 
+    public override string ToString() => ToString("F2");
+
+    public string ToString(string fmt)
+    {
+        if (string.IsNullOrEmpty(fmt))
+            fmt = "F2";
+
+        string coordString = InitialCoordinate.ToString(fmt);
+        string aziFormat = string.Format(
+            "heading {0}0:{3}{1}{2}",
+            "{",
+            "}",
+            Coordinates.Coordinate.degreeSymbol,
+            fmt);
+        string aziString = string.Format(aziFormat, InitialAzimuth);
+        return $"{coordString}; {aziString}";
+    }
+
 }

@@ -15,7 +15,7 @@ public readonly struct Coordinate
      * - Longitude: Longitude in degrees E. Any value can be given but it will be
      *   normalized to the range [-180, 180).
      */
-    private const string _degreeSymbol = "\u00B0";
+    public const string degreeSymbol = "\u00B0";
     private readonly double _latitude;
     private readonly double _longitude;
 
@@ -71,7 +71,7 @@ public readonly struct Coordinate
             "{",
             "}",
             fmt,
-            _degreeSymbol,
+            degreeSymbol,
             northOrSouth,
             eastOrWest);
         return string.Format(messageFormat, Math.Abs(Latitude), Math.Abs(Longitude));
