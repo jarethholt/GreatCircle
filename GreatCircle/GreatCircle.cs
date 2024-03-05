@@ -37,6 +37,9 @@ public readonly struct GreatCirclePath
         }
     }
 
+    public readonly double InitialLatitude => InitialCoordinate.Latitude;
+    public readonly double InitialLongitude => InitialCoordinate.Longitude;
+
     public readonly double InitialAzimuth
     {
         get => _initialAzimuth;
@@ -62,10 +65,7 @@ public readonly struct GreatCirclePath
     }
 
     public GreatCirclePath(double initialLatitude, double initialLongitude, double initialAzimuth)
-    {
-        InitialCoordinate = new(initialLatitude, initialLongitude);
-        InitialAzimuth = initialAzimuth;
-    }
+        : this(new Coordinates.Coordinate(initialLatitude, initialLongitude), initialAzimuth) { }
 
     public override string ToString() => ToString("F2");
 
@@ -83,5 +83,41 @@ public readonly struct GreatCirclePath
             fmt);
         string aziString = string.Format(aziFormat, InitialAzimuth);
         return $"{coordString}; {aziString}";
+    }
+
+    // Calculate the ascending node
+    public double NodeAzimuth()
+    {
+        (double sinInitLat, double cosInitLat)
+            = MyMathUtils.MyMath.SinCosWithDegrees(InitialLatitude);
+        (double sinInitAzi, double cosInitAzi)
+            = MyMathUtils.MyMath.SinCosWithDegrees(InitialAzimuth);
+        double sinNodeAzi = sinInitAzi * cosInitLat;
+        double cosNodeAzi = Math.Sqrt(1 - sinNodeAzi * sinNodeAzi);
+        return MyMathUtils.MyMath.Atan2ToDegrees(sinNodeAzi, cosNodeAzi);
+    }
+
+    public double NodeCentralAngle()
+    {
+        (double sinInitLat, double cosInitLat)
+            = MyMathUtils.MyMath.SinCosWithDegrees(InitialLatitude);
+        (double sinInitAzi, double cosInitAzi)
+           = MyMathUtils.MyMath.SinCosWithDegrees(InitialAzimuth);
+        double y = sinInitLat / cosInitLat;
+        double x = cosInitAzi;
+        (double sinNodeCentralAngle, double cosNodeCentralAngle)
+            = MyMathUtils.MyMath.SinCosFromTanArgs(y, x);
+        return MyMathUtils.MyMath.Atan2ToDegrees(y, x);
+    }
+
+    public double NodeLongitude()
+    {
+        (double sinNodeAzi, double cosNodeAzi) = MyMathUtils.MyMath.SinCosWithDegrees(NodeAzimuth());
+        (double sinNodeCentralAngle, double cosNodeCentralAngle) = MyMathUtils.MyMath.SinCosWithDegrees(NodeCentralAngle());
+        double y = sinNodeAzi * sinNodeCentralAngle;
+        double x = cosNodeCentralAngle;
+        (double sinNodeLonDiff, double cosNodeLonDiff) = MyMathUtils.MyMath.SinCosFromTanArgs(y, x);
+        double nodeLonDiff = MyMathUtils.MyMath.Atan2ToDegrees(y, x);
+        return InitialLongitude - nodeLonDiff;
     }
 }
