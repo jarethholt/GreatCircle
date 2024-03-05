@@ -52,4 +52,11 @@ public static class MyMath
     public static double Atan2ToDegrees(double y, double x)
         => Math.Atan2(y, x) * radToDeg;
 
+    public static (double, double, double) SinCosAngleFromAtan2(double y, double x)
+    {
+        (double sin, double cos) = SinCosFromTanArgs(y, x);
+        double angle = Atan2ToDegrees(y, x);
+        return (sin, cos, angle);
+    }
+
 }
