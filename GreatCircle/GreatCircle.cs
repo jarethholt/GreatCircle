@@ -143,4 +143,23 @@ public readonly struct GreatCirclePath
         return (latitude, azimuth);
     }
 
+    public static (GreatCirclePath, double) PathAndAngleBetweenPoints(
+        Coordinate initial, Coordinate final)
+    {
+        // Need to calculate the correct initial azimuth
+        (double sinLonDiff, double cosLonDiff)
+            = Utilities.SinCosWithDegrees(final.Longitude - initial.Longitude);
+        (double sinInitLat, double cosInitLat) = Utilities.SinCosWithDegrees(initial.Latitude);
+        (double sinFinalLat, double cosFinalLat) = Utilities.SinCosWithDegrees(final.Latitude);
+        double y = cosFinalLat * sinLonDiff;
+        double x = cosInitLat * sinFinalLat - sinInitLat * cosFinalLat * cosLonDiff;
+        double initialAzimuth = Utilities.Atan2ToDegrees(y, x);
+
+        // Calculate distance between points
+        y = Math.Sqrt(y * y + x * x);
+        x = sinInitLat * sinFinalLat + cosInitLat * cosFinalLat * cosLonDiff;
+        double angle = Utilities.Atan2ToDegrees(y, x);
+        return (new GreatCirclePath(initial, initialAzimuth), angle);
+    }
+
 }
