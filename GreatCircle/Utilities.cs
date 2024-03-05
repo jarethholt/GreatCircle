@@ -40,12 +40,6 @@ public static class Utilities
     }
 
     // Additional useful math functions
-    public static (double, double) SinCosFromTanArgs(double y, double x)
-    {
-        double norm = Math.Sqrt(y * y + x * x);
-        return (y / norm, x / norm);
-    }
-
     public static (double, double) SinCosWithDegrees(double angleInDegrees)
         => Math.SinCos(angleInDegrees * degToRad);
 
@@ -54,7 +48,9 @@ public static class Utilities
 
     public static (double, double, double) SinCosAngleFromAtan2(double y, double x)
     {
-        (double sin, double cos) = SinCosFromTanArgs(y, x);
+        double norm = Math.Sqrt(y * y + x * x);
+        double sin = y / norm;
+        double cos = x / norm;
         double angle = Atan2ToDegrees(y, x);
         return (sin, cos, angle);
     }
