@@ -146,9 +146,22 @@ public readonly struct GreatCirclePath
     public static (GreatCirclePath, double) PathAndAngleBetweenPoints(
         Coordinate initial, Coordinate final)
     {
+        // Need to check that the points are not antipodal, polar or meridional
+        if (initial.IsAntipodalTo(final))
+            throw new ArgumentException(
+                "The given points are antipodal; "
+                + "the great circle path between them is not unique");
+        if (initial.IsAPole || final.IsAPole)
+            throw new NotImplementedException(
+                "Great circle paths through the poles have not been implemented yet");
+
+        double lonDiff = final.Longitude - initial.Longitude;
+        if (Utilities.IsCloseTo(lonDiff % 180, 0))
+            throw new NotImplementedException(
+                "Meridional great circle paths have not been implemented yet");
+
         // Need to calculate the correct initial azimuth
-        (double sinLonDiff, double cosLonDiff)
-            = Utilities.SinCosWithDegrees(final.Longitude - initial.Longitude);
+        (double sinLonDiff, double cosLonDiff) = Utilities.SinCosWithDegrees(lonDiff);
         (double sinInitLat, double cosInitLat) = Utilities.SinCosWithDegrees(initial.Latitude);
         (double sinFinalLat, double cosFinalLat) = Utilities.SinCosWithDegrees(final.Latitude);
         double y = cosFinalLat * sinLonDiff;
