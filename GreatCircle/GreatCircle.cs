@@ -13,6 +13,8 @@ public readonly struct GreatCirclePath
      * Properties
      * ------
      * InitialCoordinate: The initial point as a Coordinate object.
+     *   NB: At the moment we cannot represent paths through the poles,
+     *   so this Coordinate cannot be polar.
      * initialAzimuth: Azimuth of the path at the initial point
      *   in degrees clockwise from northward, also normalized to [-180, 180).
      *   NB: At the moment purely meridional paths are not implemented, so
@@ -27,7 +29,14 @@ public readonly struct GreatCirclePath
     public readonly Coordinates.Coordinate InitialCoordinate
     {
         get => _initialCoordinate;
-        init => _initialCoordinate = value;
+        init
+        {
+            // Check that the coordinate is not a pole
+            if (value.IsAPole)
+                throw new NotImplementedException(
+                    "Paths through the poles have not been implemented yet");
+            _initialCoordinate = value;
+        }
     }
 
     public readonly double InitialAzimuth
@@ -35,14 +44,13 @@ public readonly struct GreatCirclePath
         get => _initialAzimuth;
         init
         {
-            // Put the azimuth in the range [-180, 180)
+            // Put the azimuth in the range [0, 360)
             value %= 360;
-            value = value < 180 ? value : value - 360;
             // Check that the azimuth is not meridional
             if (
                 MyMathUtils.MyMath.IsCloseTo(value, 0)
                 || MyMathUtils.MyMath.IsCloseTo(value, 180)
-                || MyMathUtils.MyMath.IsCloseTo(value, -180))
+                || MyMathUtils.MyMath.IsCloseTo(value, 360))
                 throw new NotImplementedException(
                     "Purely meridional paths (azimuth = 0 or 180) have not been implemented yet");
             _initialAzimuth = value;
