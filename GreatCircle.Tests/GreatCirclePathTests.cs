@@ -40,7 +40,7 @@ public class GreatCirclePathTests
         double azimuth = 30;
         Assert.Equal(
             $"{latitude:F2}{degreeSymbol} N, {longitude:F2}{degreeSymbol} E; "
-            + $"heading {azimuth:F2}{degreeSymbol}",
+            + $"{azimuth:F2}{degreeSymbol}",
             new GreatCirclePath(latitude, longitude, azimuth).ToString());
     }
 
@@ -52,7 +52,7 @@ public class GreatCirclePathTests
         double azimuth = 30;
         Assert.Equal(
             $"{latitude:F0}{degreeSymbol} N, {longitude:F0}{degreeSymbol} E; "
-            + $"heading {azimuth:F0}{degreeSymbol}",
+            + $"{azimuth:F0}{degreeSymbol}",
             new GreatCirclePath(latitude, longitude, azimuth).ToString("F0"));
     }
 }

@@ -114,7 +114,9 @@ public readonly struct GreatCirclePath
     /// Construct a great circle path from a given coordinate and direction.
     /// </summary>
     /// <param name="coordinate">Coordinate representing the starting point.</param>
-    /// <param name="initialAzimuth">Direction (azimuth) of the path at the starting point.</param>
+    /// <param name="initialAzimuth">
+    /// Direction (azimuth) of the path at the starting point.
+    /// </param>
     /// <remarks>
     /// Purely polar paths are not currently implemented. This means that the azimuth
     /// should not be a multiple of 180 (purely northward or southward).
@@ -148,7 +150,8 @@ public readonly struct GreatCirclePath
     /// </summary>
     /// <param name="initialLatitude">Latitude of the starting point in degrees N.</param>
     /// <param name="initialLongitude">Longitude of the starting point in degrees E.</param>
-    /// <param name="initialAzimuth">Direction (azimuth) of the path at the starting point.</param>
+    /// <param name="initialAzimuth">
+    /// Direction (azimuth) of the path at the starting point.</param>
     /// <remarks>
     /// Purely polar paths are not currently implemented. This means that the azimuth
     /// should not be a multiple of 180 (purely northward or southward).
@@ -186,7 +189,12 @@ public readonly struct GreatCirclePath
         return $"{coordString}; {aziString}";
     }
 
-    public (double, double, double) DisplaceByAngle(double angle)
+    /// <summary>
+    /// Find the point on the path a given central angle from the starting point.
+    /// </summary>
+    /// <param name="angle">The central angle from the starting point in degrees.</param>
+    /// <returns>The new <c>Coordinate</c> location and azimuth.</returns>
+    public (Coordinate, double) DisplaceByAngle(double angle)
     {
         (double sinAngle, double cosAngle)
             = Utilities.SinCosWithDegrees(angle + _nodeAngle);
@@ -198,9 +206,14 @@ public readonly struct GreatCirclePath
         double longitude = lonDiff + _nodeLongitude;
 
         double azimuth = Utilities.Atan2ToDegrees(_sinNodeAzi / _cosNodeAzi, cosAngle);
-        return (latitude, longitude, azimuth);
+        return (new Coordinate(latitude, longitude), azimuth);
     }
 
+    /// <summary>
+    /// Find the point on the path at a given longitude.
+    /// </summary>
+    /// <param name="longitude">Longitude in degrees of the new point.</param>
+    /// <returns>The latitude and azimuth of the path at that point in degrees.</returns>
     public (double, double) DisplaceToLongitude(double longitude)
     {
         (double sinLonDiff, double cosLonDiff)
@@ -214,6 +227,21 @@ public readonly struct GreatCirclePath
         return (latitude, azimuth);
     }
 
+    /// <summary>
+    /// Construct the great circle path between two points.
+    /// </summary>
+    /// <param name="initial">Starting point.</param>
+    /// <param name="final">Ending point.</param>
+    /// <returns>
+    /// The <c>GreatCirclePath</c> including both points
+    /// and the central angle between them in degrees.
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// If the points are antipodal since the great circle path between them is not unique.
+    /// </exception>
+    /// <exception cref="NotImplementedException">
+    /// If the points lie on a great circle passing through the poles.
+    /// </exception>
     public static (GreatCirclePath, double) PathAndAngleBetweenPoints(
         Coordinate initial, Coordinate final)
     {
@@ -227,7 +255,7 @@ public readonly struct GreatCirclePath
                 "Great circle paths through the poles have not been implemented yet");
 
         double lonDiff = final.Longitude - initial.Longitude;
-        if (Utilities.IsCloseTo(lonDiff % 180, 0))
+        if (Utilities.IsCloseTo(lonDiff % 180, 0) || Utilities.IsCloseTo(lonDiff % 180, 180))
             throw new NotImplementedException(
                 "Meridional great circle paths have not been implemented yet");
 
