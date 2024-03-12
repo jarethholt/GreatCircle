@@ -26,19 +26,19 @@ public class CoordinateTests
     [Fact]
     public void IsAPole_PolarPoint()
     {
-        Assert.True(Coordinate.NorthPole.IsAPole);
+        Assert.True(Coordinate.NorthPole.IsAPole());
     }
 
     [Fact]
     public void IsAPole_PolarPoint_NonstandardLongitude()
     {
-        Assert.True(new Coordinate(90, 15).IsAPole);
+        Assert.True(new Coordinate(90, 15).IsAPole());
     }
 
     [Fact]
     public void IsAPole_NonPolarPoint()
     {
-        Assert.False(Coordinate.Origin.IsAPole);
+        Assert.False(Coordinate.Origin.IsAPole());
     }
 
     [Fact]
