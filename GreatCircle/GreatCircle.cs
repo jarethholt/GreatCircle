@@ -1,51 +1,55 @@
 ﻿// Class providing the functionality of a great circle path.
-
 namespace GreatCircle;
 
+/// <summary>
+/// Structure representing the path of a great circle.
+/// </summary>
+/// <remarks>
+/// The term "path" here is used to denote not just which great circle,
+/// but also a direction of travel. For example, the equator is a great
+/// circle, but the paths traveling east and west along the equator
+/// are considered different.
+/// <para>
+/// Paths here also have designated starting points that are referenced
+/// in calculations. In that sense, a great circle path starting at
+/// 0 N, 0 E and one starting at 0 N, 180 W both traveling eastward
+/// will also be considered different.
+/// </para>
+/// </remarks>
 public readonly struct GreatCirclePath
 {
-    /* Representation of a generic (non-polar) great circle path.
-     * 
-     * A great circle path given by an initial point and an azimuth.
-     * Points along the path are then parameterized by a given central
-     * angle from the initial point.
-     * 
-     * Properties
-     * ------
-     * InitialCoordinate: The initial point as a Coordinate object.
-     *   NB: At the moment we cannot represent paths through the poles,
-     *   so this Coordinate cannot be polar.
-     * InitialAzimuth: Azimuth of the path at the initial point
-     *   in degrees clockwise from northward, also normalized to [-180, 180).
-     *   NB: At the moment purely meridional paths are not implemented, so
-     *   this field is constrained to (-180, 0) and (0, 180).
-     */
-
     private readonly Coordinate _initialCoordinate;
-    private readonly double _initialAzimuth;
-    private readonly double _nodeAzimuth;
-    private readonly double _sinNodeAzi;
-    private readonly double _cosNodeAzi;
-    private readonly double _tanNodeAzi;
-    private readonly double _nodeAngle;
-    private readonly double _nodeLongitude;
-
+    /// <summary>The starting location of the great circle path.</summary>
+    /// <value>Starting <c>Coordinate</c>.</value>
     public readonly Coordinate InitialCoordinate
     {
         get => _initialCoordinate;
         init
         {
             // Check that the coordinate is not a pole
-            if (value.IsAPole)
+            if (value.IsAPole())
                 throw new NotImplementedException(
                     "Paths through the poles have not been implemented yet");
             _initialCoordinate = value;
         }
     }
 
-    public readonly double InitialLatitude => InitialCoordinate.Latitude;
-    public readonly double InitialLongitude => InitialCoordinate.Longitude;
-
+    private readonly double _initialAzimuth;
+    /// <summary>The direction of the great circle path at the starting location.</summary>
+    /// <value>Azimuth of path at <c>InitialCoordinate</c>.</value>
+    /// <remarks>
+    /// The convention is that the azimuth is measured in degrees clockwise from
+    /// northward, in the range [0, 360). Thus we get the values northward = 0,
+    /// eastward = 90, southward = 180, westward = 270.
+    /// <para>
+    /// Any value can be provided for the initial azimuth, but it will be converted
+    /// internally to the range [0, 360).
+    /// </para>
+    /// <para>
+    /// Purely polar paths are not currently implemented. This means that the azimuth
+    /// should not be a multiple of 180 (purely northward or southward).
+    /// </para>
+    /// </remarks>
     public readonly double InitialAzimuth
     {
         get => _initialAzimuth;
@@ -65,10 +69,56 @@ public readonly struct GreatCirclePath
         }
     }
 
+    /// <summary>Latitude of the <c>InitialCoordinate</c> in degrees N.</summary>
+    public readonly double InitialLatitude => InitialCoordinate.Latitude;
+    /// <summary>Longitude of the <c>InitialCoordinate</c> in degrees E.</summary>
+    public readonly double InitialLongitude => InitialCoordinate.Longitude;
+
+    private readonly double _nodeAzimuth;
+    /// <summary>Azimuth of the great circle path at the ascending node.</summary>
+    /// <value>Azimuth of path at the node.</value>
+    /// <remarks>
+    /// The ascending node is the point at which the great circle path crosses
+    /// the equator going northward. Values of various parameters at the node
+    /// are used extensively in other calculations.
+    /// </remarks>
     public readonly double NodeAzimuth => _nodeAzimuth;
-    public readonly double NodeAngle => _nodeAngle;
+
+    private readonly double _nodeLongitude;
+    /// <summary>Longitude of the ascending node.</summary>
+    /// <value>Longitude of the node.</value>
+    /// <remarks>
+    /// The ascending node is the point at which the great circle path crosses
+    /// the equator going northward. Values of various parameters at the node
+    /// are used extensively in other calculations.
+    /// </remarks>
     public readonly double NodeLongitude => _nodeLongitude;
 
+    private readonly double _nodeAngle;
+    /// <summary>
+    /// Central angle between the ascending node and the <c>InitialCoordinate</c>.
+    /// </summary>
+    /// <value>Central angle between node and starting point.</value>
+    /// <remarks>
+    /// The ascending node is the point at which the great circle path crosses
+    /// the equator going northward. Values of various parameters at the node
+    /// are used extensively in other calculations.
+    /// </remarks>
+    public readonly double NodeAngle => _nodeAngle;
+
+    private readonly double _sinNodeAzi;
+    private readonly double _cosNodeAzi;
+    private readonly double _tanNodeAzi;
+
+    /// <summary>
+    /// Construct a great circle path from a given coordinate and direction.
+    /// </summary>
+    /// <param name="coordinate">Coordinate representing the starting point.</param>
+    /// <param name="initialAzimuth">Direction (azimuth) of the path at the starting point.</param>
+    /// <remarks>
+    /// Purely polar paths are not currently implemented. This means that the azimuth
+    /// should not be a multiple of 180 (purely northward or southward).
+    /// </remarks>
     public GreatCirclePath(Coordinate coordinate, double initialAzimuth)
     {
         InitialCoordinate = coordinate;
@@ -93,24 +143,45 @@ public readonly struct GreatCirclePath
         _nodeLongitude = InitialLongitude - nodeLonDiff;
     }
 
+    /// <summary>
+    /// Construct a great circle path from a latitude, longitude, and direction.
+    /// </summary>
+    /// <param name="initialLatitude">Latitude of the starting point in degrees N.</param>
+    /// <param name="initialLongitude">Longitude of the starting point in degrees E.</param>
+    /// <param name="initialAzimuth">Direction (azimuth) of the path at the starting point.</param>
+    /// <remarks>
+    /// Purely polar paths are not currently implemented. This means that the azimuth
+    /// should not be a multiple of 180 (purely northward or southward).
+    /// </remarks>
     public GreatCirclePath(
         double initialLatitude, double initialLongitude, double initialAzimuth)
         : this(new Coordinate(initialLatitude, initialLongitude), initialAzimuth) { }
 
+    /// <summary>Represent this great circle path as a string.</summary>
+    /// <returns>String representation of the path.</returns>
+    /// <remarks>Calls <c>ToString(fmt)</c> with a default value <c>fmt = "F2"</c>.</remarks>
     public override string ToString() => ToString("F2");
 
+    /// <summary>Format the great circle path as a string with given formatting.</summary>
+    /// <param name="fmt">The type of floating-point format to use.</param>
+    /// <returns>A string representation of the path.</returns>
+    /// <remarks>
+    /// The <c>fmt</c> is used for the representation of longitude, latitude, and azimuth.
+    /// This format string is automatically passed in when providing a <c>GreatCirclePath</c>
+    /// as a parameter in string interpolation:
+    /// <code>
+    ///     GreatCirclePath path = new(75, 10, 30);
+    ///     string actual = $"{path:F2}";
+    ///     string expected = "75.00° N, 10.00° E; 30.00°";
+    /// </code>
+    /// </remarks>
     public string ToString(string fmt)
     {
         if (string.IsNullOrEmpty(fmt))
             fmt = "F2";
 
         string coordString = InitialCoordinate.ToString(fmt);
-        string aziFormat = string.Format(
-            "heading {0}0:{3}{1}{2}",
-            "{",
-            "}",
-            Coordinate.degreeSymbol,
-            fmt);
+        string aziFormat = $"{{0:{fmt}}}{Coordinate.degreeSymbol}";
         string aziString = string.Format(aziFormat, InitialAzimuth);
         return $"{coordString}; {aziString}";
     }
@@ -151,7 +222,7 @@ public readonly struct GreatCirclePath
             throw new ArgumentException(
                 "The given points are antipodal; "
                 + "the great circle path between them is not unique");
-        if (initial.IsAPole || final.IsAPole)
+        if (initial.IsAPole() || final.IsAPole())
             throw new NotImplementedException(
                 "Great circle paths through the poles have not been implemented yet");
 
