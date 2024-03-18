@@ -1,5 +1,70 @@
 namespace GreatCircle.Tests;
 
+public class AnglesTests
+{
+    /// <summary>
+    /// Check that degrees and minutes are correctly calculated for a positive angle.
+    /// </summary>
+    [Fact]
+    public void DegreesToDegreeMinutes_Positive()
+    {
+        double angle = 120.87;
+        int expectedDegrees = 120;
+        double expectedMinutes = 52.2;
+        (int actualDegrees, double actualMinutes) = Angles.DegreesToDegreeMinutes(angle);
+        Assert.Equal(expectedDegrees, actualDegrees);
+        Assert.Equal(expectedMinutes, actualMinutes, precision: 2);
+    }
+
+    /// <summary>
+    /// Check that degrees and minutes are correctly calculated for a negative angle.
+    /// </summary>
+    [Fact]
+    public void DegreesToDegreeMinutes_Negative()
+    {
+        double angle = -120.87;
+        int expectedDegrees = -120;
+        double expectedMinutes = 52.2;
+        (int actualDegrees, double actualMinutes) = Angles.DegreesToDegreeMinutes(angle);
+        Assert.Equal(expectedDegrees, actualDegrees);
+        Assert.Equal(expectedMinutes, actualMinutes, precision: 2);
+    }
+
+    /// <summary>
+    /// Check that degrees, minutes, and seconds are correctly calculated for a positive angle.
+    /// </summary>
+    [Fact]
+    public void DegreesToDegreeSeconds_Positive()
+    {
+        double angle = 120.87;
+        int expectedDegrees = 120;
+        int expectedMinutes = 52;
+        double expectedSeconds = 12;
+        (int actualDegrees, int actualMinutes, double actualSeconds)
+            = Angles.DegreesToDegreeSeconds(angle);
+        Assert.Equal(expectedDegrees, actualDegrees);
+        Assert.Equal(expectedMinutes, actualMinutes);
+        Assert.Equal(expectedSeconds, actualSeconds, precision: 2);
+    }
+
+    /// <summary>
+    /// Check that degrees, minutes, and seconds are correctly calculated for a negative angle.
+    /// </summary>
+    [Fact]
+    public void DegreesToDegreeSeconds_Negative()
+    {
+        double angle = -120.87;
+        int expectedDegrees = -120;
+        int expectedMinutes = 52;
+        double expectedSeconds = 12;
+        (int actualDegrees, int actualMinutes, double actualSeconds)
+            = Angles.DegreesToDegreeSeconds(angle);
+        Assert.Equal(expectedDegrees, actualDegrees);
+        Assert.Equal(expectedMinutes, actualMinutes);
+        Assert.Equal(expectedSeconds, actualSeconds, precision: 2);
+    }
+}
+
 public class UtilitiesTests
 {
     /// <summary>
