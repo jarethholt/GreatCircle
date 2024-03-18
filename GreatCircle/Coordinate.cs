@@ -36,7 +36,7 @@ public readonly struct Coordinate
         get => _longitude;
         init
         {
-            value %= 360;
+            value = Math.IEEERemainder(value, 360);
             _longitude = value < 180 ? value : value - 360;
         }
     }
