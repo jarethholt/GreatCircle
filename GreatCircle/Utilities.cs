@@ -2,10 +2,50 @@
 
 namespace GreatCircle;
 
+public static class Angles
+{
+    public const char Degree = '\u00B0';
+    public const char Minute = '\'';
+    public const char Second = '"';
+
+    public static (int, double) DegreesToDegreeMinutes(double angle)
+    {
+        int degrees = (int)Math.Truncate(angle);
+        double minutes = (angle - degrees) * 60;
+        return (degrees, minutes);
+    }
+
+    public static (int, int, double) DegreesToDegreeSeconds(double angle)
+    {
+        int degrees = (int)Math.Truncate(angle);
+        int minutes = (int)((angle - degrees) * 60);
+        double seconds = ((angle - degrees) * 60 - minutes) * 60;
+        return (degrees, minutes, seconds);
+    }
+
+    public static string ToStringNearestDegree(double angle)
+        => $"{(int)angle}{Degree}";
+
+    public static string ToStringNearestMinute(double angle)
+    {
+        (int degrees, double minutes) = DegreesToDegreeMinutes(angle);
+        return $"{degrees}{Degree}{(int)minutes}{Minute}";
+    }
+
+    public static string ToStringNearestSecond(double angle)
+    {
+        (int degrees, int minutes, double seconds) = DegreesToDegreeSeconds(angle);
+        return $"{degrees}{Degree}{minutes}{Minute}{(int)seconds}{Second}";
+    }
+}
+
+/// <summary>Default tolerance values for the Utilities.*Close functions.</summary>
 public struct ToleranceDefaults
 {
+    /// <summary>The tolerance relative to the magnitude of the inputs.</summary>
     public const double relativeTolerance = 1e-6;
-    public const double absoluteTolerance = 1e-6;
+    /// <summary>The tolerance independent of the input values.</summary>
+    public const double absoluteTolerance = 1e-8;
 }
 
 public static class Utilities

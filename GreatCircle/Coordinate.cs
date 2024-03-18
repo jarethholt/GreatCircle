@@ -6,8 +6,6 @@ namespace GreatCircle;
 /// </summary>
 public readonly struct Coordinate
 {
-    public const string degreeSymbol = "\u00B0";
-
     private readonly double _latitude;
     /// <summary>The latitude of the coordinate in degrees N.</summary>
     /// <remarks>Must be between -90 and 90.</remarks>
@@ -80,7 +78,7 @@ public readonly struct Coordinate
         string northOrSouth = Latitude >= 0 ? "N" : "S";
         string eastOrWest = Longitude >= 0 ? "E" : "W";
         string messageFormat =
-            $"{{0:{fmt}}}{degreeSymbol} {northOrSouth}, {{1:{fmt}}}{degreeSymbol} {eastOrWest}";
+            $"{{0:{fmt}}}{Angles.Degree} {northOrSouth}, {{1:{fmt}}}{Angles.Degree} {eastOrWest}";
         return string.Format(messageFormat, Math.Abs(Latitude), Math.Abs(Longitude));
     }
 

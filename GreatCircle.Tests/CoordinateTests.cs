@@ -2,8 +2,6 @@
 
 public class CoordinateTests
 {
-    private readonly string degreeSymbol = "\u00B0";
-
     /// <summary>
     /// Check for <c>ArgumentOutOfRangeException</c> when the latitude is outside of [-90, 90].
     /// </summary>
@@ -100,7 +98,7 @@ public class CoordinateTests
     public void String_Origin_DefaultFormat()
     {
         Assert.Equal(
-            $"0.00{degreeSymbol} N, 0.00{degreeSymbol} E",
+            $"0.00{Angles.Degree} N, 0.00{Angles.Degree} E",
             Coordinate.Origin.ToString());
     }
 
@@ -111,7 +109,7 @@ public class CoordinateTests
     public void String_Origin_CustomFormat()
     {
         Assert.Equal(
-            $"0{degreeSymbol} N, 0{degreeSymbol} E",
+            $"0{Angles.Degree} N, 0{Angles.Degree} E",
             Coordinate.Origin.ToString("F0"));
     }
 
@@ -122,7 +120,7 @@ public class CoordinateTests
     public void String_NorthPole_DefaultFormat()
     {
         Assert.Equal(
-            $"90.00{degreeSymbol} N, 0.00{degreeSymbol} E",
+            $"90.00{Angles.Degree} N, 0.00{Angles.Degree} E",
             Coordinate.NorthPole.ToString());
     }
 
@@ -133,7 +131,7 @@ public class CoordinateTests
     public void String_SouthPole_DefaultFormat()
     {
         Assert.Equal(
-            $"90.00{degreeSymbol} S, 0.00{degreeSymbol} E",
+            $"90.00{Angles.Degree} S, 0.00{Angles.Degree} E",
             Coordinate.SouthPole.ToString());
     }
 
@@ -146,7 +144,7 @@ public class CoordinateTests
         double latitude = 10;
         double longitude = 70;
         Assert.Equal(
-            $"{latitude:F2}{degreeSymbol} N, {longitude:F2}{degreeSymbol} E",
+            $"{latitude:F2}{Angles.Degree} N, {longitude:F2}{Angles.Degree} E",
             new Coordinate(latitude, longitude).ToString());
     }
 
@@ -159,7 +157,7 @@ public class CoordinateTests
         double latitude = 10;
         double longitude = -70;
         Assert.Equal(
-            $"{latitude:F2}{degreeSymbol} N, {-longitude:F2}{degreeSymbol} W",
+            $"{latitude:F2}{Angles.Degree} N, {-longitude:F2}{Angles.Degree} W",
             new Coordinate(latitude, longitude).ToString());
     }
 
@@ -172,7 +170,7 @@ public class CoordinateTests
         double latitude = -10;
         double longitude = 70;
         Assert.Equal(
-            $"{-latitude:F2}{degreeSymbol} S, {longitude:F2}{degreeSymbol} E",
+            $"{-latitude:F2}{Angles.Degree} S, {longitude:F2}{Angles.Degree} E",
             new Coordinate(latitude, longitude).ToString());
     }
 
@@ -185,7 +183,7 @@ public class CoordinateTests
         double latitude = -10;
         double longitude = -70;
         Assert.Equal(
-            $"{-latitude:F2}{degreeSymbol} S, {-longitude:F2}{degreeSymbol} W",
+            $"{-latitude:F2}{Angles.Degree} S, {-longitude:F2}{Angles.Degree} W",
             new Coordinate(latitude, longitude).ToString());
     }
 }
