@@ -11,15 +11,15 @@ public static class Angles
     public static (int, double) DegreesToDegreeMinutes(double angle)
     {
         int degrees = (int)Math.Truncate(angle);
-        double minutes = (angle - degrees) * 60;
+        double minutes = Math.Abs((angle - degrees) * 60);
         return (degrees, minutes);
     }
 
     public static (int, int, double) DegreesToDegreeSeconds(double angle)
     {
         int degrees = (int)Math.Truncate(angle);
-        int minutes = (int)((angle - degrees) * 60);
-        double seconds = ((angle - degrees) * 60 - minutes) * 60;
+        int minutes = (int)Math.Abs((angle - degrees) * 60);
+        double seconds = (Math.Abs(angle - degrees) * 60 - minutes) * 60;
         return (degrees, minutes, seconds);
     }
 
