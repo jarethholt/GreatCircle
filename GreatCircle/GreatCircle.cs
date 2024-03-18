@@ -184,7 +184,7 @@ public readonly struct GreatCirclePath
             fmt = "F2";
 
         string coordString = InitialCoordinate.ToString(fmt);
-        string aziFormat = $"{{0:{fmt}}}{Coordinate.degreeSymbol}";
+        string aziFormat = $"{{0:{fmt}}}{Angles.Degree}";
         string aziString = string.Format(aziFormat, InitialAzimuth);
         return $"{coordString}; {aziString}";
     }
