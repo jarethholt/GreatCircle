@@ -13,13 +13,23 @@ public class CoordinateTests
     }
 
     /// <summary>
-    /// Check that a longitude outside the range [-180, 180) is reset to this range.
+    /// Check that a longitude above the range [-180, 180) is reset to this range.
     /// </summary>
     [Fact]
-    public void Coordinates_Longitude_ResetToRange()
+    public void Coordinates_Longitude_PositiveResetToRange()
     {
         double longitude = 50;
         Assert.Equal(longitude, new Coordinate(0, longitude+360).Longitude);
+    }
+
+    /// <summary>
+    /// Check that a longitude below the range [-180, 180) is reset to this range.
+    /// </summary>
+    [Fact]
+    public void Coordinates_Longitude_NegativeResetToRange()
+    {
+        double longitude = 50;
+        Assert.Equal(longitude, new Coordinate(0, longitude - 360).Longitude);
     }
 
     /// <summary>
