@@ -91,7 +91,7 @@ public class UtilitiesTests
     [Fact]
     public void IsCloseTo_NearZero()
     {
-        Assert.True(Utilities.IsCloseTo(1e-6, 0));
+        Assert.True(Utilities.IsCloseTo(1e-8, 0));
     }
 
     /// <summary>
@@ -100,7 +100,7 @@ public class UtilitiesTests
     [Fact]
     public void IsCloseTo_FarFromZero()
     {
-        Assert.False(Utilities.IsCloseTo(1.1e-6, 0));
+        Assert.False(Utilities.IsCloseTo(1.1e-8, 0));
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ public class UtilitiesTests
     [Fact]
     public void AreClose_NearEachOther()
     {
-        Assert.True(Utilities.AreClose(1 - 1e-6, 1 + 1e-6));
+        Assert.True(Utilities.AreClose(1 - 1e-8, 1 + 1e-8));
     }
 
     /// <summary>
@@ -118,7 +118,7 @@ public class UtilitiesTests
     [Fact]
     public void AreClose_FarFromEachOther()
     {
-        Assert.False(Utilities.AreClose(1 - 1e-6, 1 + 1.1e-6));
+        Assert.False(Utilities.AreClose(1 - 1e-8, 1 + 1.1e-8));
     }
 
     /// <summary>
@@ -127,7 +127,7 @@ public class UtilitiesTests
     [Fact]
     public void AreClose_NearZero_True()
     {
-        Assert.True(Utilities.AreClose(5e-7, -5e-7));
+        Assert.True(Utilities.AreClose(5e-9, -5e-9));
     }
 
     /// <summary>
@@ -136,6 +136,6 @@ public class UtilitiesTests
     [Fact]
     public void AreClose_NearZero_False()
     {
-        Assert.False(Utilities.AreClose(5.1e-6, -5e-7));
+        Assert.False(Utilities.AreClose(5.1e-9, -5e-9));
     }
 }
