@@ -2,11 +2,86 @@
 
 namespace GreatCircle;
 
-public static class Angles
+public static class AngleUtilities
 {
+    public const double degToRad = Math.PI / 180;
+    public const double radToDeg = 180.0 / Math.PI;
     public const char Degree = '\u00B0';
     public const char Minute = '\'';
     public const char Second = '"';
+
+    /// <summary>
+    /// Simultaneously compute the sine and cosine of an angle given in degrees.
+    /// </summary>
+    /// <param name="angleInDegrees">The angle to compute sine and cosine of in degrees.</param>
+    /// <returns>The sine and cosine of the angle.</returns>
+    public static (double, double) SinCosWithDegrees(double angleInDegrees)
+        => Math.SinCos(angleInDegrees * degToRad);
+
+    /// <summary>
+    /// Calculate the quadrant-accurate arctangent of y/x in degrees.
+    /// </summary>
+    /// <param name="y">The numerator in the arctangent.</param>
+    /// <param name="x">The denominator in the arctangent.</param>
+    /// <returns>The angle in the correct quadrant in degrees.</returns>
+    public static double Atan2ToDegrees(double y, double x)
+        => Math.Atan2(y, x) * radToDeg;
+
+    /// <summary>
+    /// Calculate the quadrant-accurate arctangent of y/x in degrees.
+    /// Simultaneously, calculate the sine and cosine of that angle using y and x directly.
+    /// </summary>
+    /// <param name="y">The numerator in the arctangent.</param>
+    /// <param name="x">The denominator in the arctangent.</param>
+    /// <returns>The sine, cosine, and angle in degrees.</returns>
+    public static (double, double, double) SinCosAngleFromAtan2(double y, double x)
+    {
+        double angle = Atan2ToDegrees(y, x);
+        double norm = Math.Sqrt(y * y + x * x);
+        double sin = y / norm;
+        double cos = x / norm;
+        return (sin, cos, angle);
+    }
+
+    /// <summary>
+    /// Normalize a value to conform to azimuth conventions. The azimuth is typically measured
+    /// clockwise from due North, i.e. in the range [0, 360).
+    /// </summary>
+    /// <param name="value">The value to normalize.</param>
+    /// <returns>An equivalent value in the range [0, 360).</returns>
+    /// <remarks>
+    /// The azimuth is actually usually given the range (0, 360], with the origin moved to the
+    /// end. However when using floating-point values this distinction seems irrelevant. Thus
+    /// this function leaves the origin in, which makes it a single call to Math.IEEERemainder.
+    /// </remarks>
+    public static double NormalizeToAzimuth(double value) =>
+        Math.IEEERemainder(value, 360);
+
+    /// <summary>
+    /// Normalize a value to conform to longitude conventions. Longitudes are typically given
+    /// between 180 W and 180 E, i.e. in the range [-180, 180).
+    /// </summary>
+    /// <param name="value">The value to normalize.</param>
+    /// <returns>An equivalent value in the range [-180, 180).</returns>
+    public static double NormalizeToLongitude(double value)
+    {
+        double lon = NormalizeToAzimuth(value);
+        return lon < 180 ? lon : lon - 360;
+    }
+
+    /// <summary>
+    /// Normalize a value to conform to latitude conventions. Latitudes should be between
+    /// -90 and 90 in degrees. Values above and below these are expected to wrap around
+    /// the poles, so for example 110 = 90 + 20 => 90 - 20 = 70.
+    /// </summary>
+    /// <param name="lat">The value to normalize.</param>
+    /// <returns>An equivalent value in the range [-90, 90].</returns>
+    public static double NormalizeToLatitude(double value)
+    {
+        double lat = NormalizeToLongitude(value);
+        int sign = Math.Sign(lat);
+        return Math.Abs(lat) <= 90 ? lat : sign * 180 - lat;
+    }
 
     public static (int, double) DegreesToDegreeMinutes(double angle)
     {
@@ -39,20 +114,17 @@ public static class Angles
     }
 }
 
-/// <summary>Default tolerance values for the Utilities.*Close functions.</summary>
-public struct ToleranceDefaults
+/// <summary>Default tolerance values for the DoubleUtilities.*Close functions.</summary>
+public readonly struct CloseToToleranceDefaults
 {
     /// <summary>The tolerance relative to the magnitude of the inputs.</summary>
-    public const double relativeTolerance = 1e-6;
+    public const double RelativeTolerance = 1e-6;
     /// <summary>The tolerance independent of the input values.</summary>
-    public const double absoluteTolerance = 1e-8;
+    public const double AbsoluteTolerance = 1e-8;
 }
 
-public static class Utilities
+public static class CloseToUtilities
 {
-    public const double degToRad = Math.PI / 180;
-    public const double radToDeg = 180.0 / Math.PI;
-
     /// <summary>
     /// Determine whether a value is sufficiently close to a target.
     /// </summary>
@@ -69,8 +141,8 @@ public static class Utilities
     public static bool IsCloseTo(
         double value,
         double target,
-        double relativeTolerance = ToleranceDefaults.relativeTolerance,
-        double absoluteTolerance = ToleranceDefaults.absoluteTolerance
+        double relativeTolerance = CloseToToleranceDefaults.RelativeTolerance,
+        double absoluteTolerance = CloseToToleranceDefaults.AbsoluteTolerance
     ) => Math.Abs(value - target) <= absoluteTolerance + relativeTolerance * Math.Abs(target);
 
     /// <summary>
@@ -89,44 +161,10 @@ public static class Utilities
     public static bool AreClose(
         double value1,
         double value2,
-        double relativeTolerance = ToleranceDefaults.relativeTolerance,
-        double absoluteTolerance = ToleranceDefaults.absoluteTolerance
+        double relativeTolerance = CloseToToleranceDefaults.RelativeTolerance,
+        double absoluteTolerance = CloseToToleranceDefaults.AbsoluteTolerance
     ) => (
         Math.Abs(value1 - value2)
         <= absoluteTolerance + relativeTolerance * 0.5 * (Math.Abs(value1) + Math.Abs(value2))
     );
-
-    /// <summary>
-    /// Simultaneously compute the sine and cosine of an angle given in degrees.
-    /// </summary>
-    /// <param name="angleInDegrees">The angle to compute sine and cosine of in degrees.</param>
-    /// <returns>The sine and cosine of the angle.</returns>
-    public static (double, double) SinCosWithDegrees(double angleInDegrees)
-        => Math.SinCos(angleInDegrees * degToRad);
-
-    /// <summary>
-    /// Calculate the quadrant-accurate arctangent of y/x in degrees.
-    /// </summary>
-    /// <param name="y">The numerator in the arctangent.</param>
-    /// <param name="x">The denominator in the arctangent.</param>
-    /// <returns>The angle in the correct quadrant in degrees.</returns>
-    public static double Atan2ToDegrees(double y, double x)
-        => Math.Atan2(y, x) * radToDeg;
-
-    /// <summary>
-    /// Calculate the quadrant-accurate arctangent of y/x in degrees.
-    /// Simultaneously, calculate the sine and cosine of that angle using y and x directly.
-    /// </summary>
-    /// <param name="y">The numerator in the arctangent.</param>
-    /// <param name="x">The denominator in the arctangent.</param>
-    /// <returns>The sine, cosine, and angle in degrees.</returns>
-    public static (double, double, double) SinCosAngleFromAtan2(double y, double x)
-    {
-        double norm = Math.Sqrt(y * y + x * x);
-        double sin = y / norm;
-        double cos = x / norm;
-        double angle = Atan2ToDegrees(y, x);
-        return (sin, cos, angle);
-    }
-
 }

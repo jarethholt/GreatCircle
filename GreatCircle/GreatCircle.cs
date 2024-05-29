@@ -16,25 +16,11 @@ namespace GreatCircle;
 /// will also be considered different.
 /// </para>
 /// </remarks>
-public readonly struct GreatCirclePath
+public readonly record struct GreatCirclePath
 {
-    private readonly Coordinate _initialCoordinate;
     /// <summary>The starting location of the great circle path.</summary>
     /// <value>Starting <c>Coordinate</c>.</value>
-    public readonly Coordinate InitialCoordinate
-    {
-        get => _initialCoordinate;
-        init
-        {
-            // Check that the coordinate is not a pole
-            if (value.IsAPole())
-                throw new NotImplementedException(
-                    "Paths through the poles have not been implemented yet");
-            _initialCoordinate = value;
-        }
-    }
-
-    private readonly double _initialAzimuth;
+    public readonly Coordinate InitialCoordinate;
     /// <summary>The direction of the great circle path at the starting location.</summary>
     /// <value>Azimuth of path at <c>InitialCoordinate</c>.</value>
     /// <remarks>
@@ -50,31 +36,13 @@ public readonly struct GreatCirclePath
     /// should not be a multiple of 180 (purely northward or southward).
     /// </para>
     /// </remarks>
-    public readonly double InitialAzimuth
-    {
-        get => _initialAzimuth;
-        init
-        {
-            // Put the azimuth in the range [0, 360)
-            value %= 360;
-            // Check that the azimuth is not meridional
-            if (
-                Utilities.IsCloseTo(value, 0)
-                || Utilities.IsCloseTo(value, 180)
-                || Utilities.IsCloseTo(value, 360))
-                throw new NotImplementedException(
-                    "Purely meridional paths (azimuth = 0 or 180) "
-                    + "have not been implemented yet");
-            _initialAzimuth = value;
-        }
-    }
+    public readonly double InitialAzimuth;
 
     /// <summary>Latitude of the <c>InitialCoordinate</c> in degrees N.</summary>
     public readonly double InitialLatitude => InitialCoordinate.Latitude;
     /// <summary>Longitude of the <c>InitialCoordinate</c> in degrees E.</summary>
     public readonly double InitialLongitude => InitialCoordinate.Longitude;
 
-    private readonly double _nodeAzimuth;
     /// <summary>Azimuth of the great circle path at the ascending node.</summary>
     /// <value>Azimuth of path at the node.</value>
     /// <remarks>
@@ -82,9 +50,8 @@ public readonly struct GreatCirclePath
     /// the equator going northward. Values of various parameters at the node
     /// are used extensively in other calculations.
     /// </remarks>
-    public readonly double NodeAzimuth => _nodeAzimuth;
+    public readonly double NodeAzimuth;
 
-    private readonly double _nodeLongitude;
     /// <summary>Longitude of the ascending node.</summary>
     /// <value>Longitude of the node.</value>
     /// <remarks>
@@ -92,9 +59,8 @@ public readonly struct GreatCirclePath
     /// the equator going northward. Values of various parameters at the node
     /// are used extensively in other calculations.
     /// </remarks>
-    public readonly double NodeLongitude => _nodeLongitude;
+    public readonly double NodeLongitude;
 
-    private readonly double _nodeAngle;
     /// <summary>
     /// Central angle between the ascending node and the <c>InitialCoordinate</c>.
     /// </summary>
@@ -104,7 +70,7 @@ public readonly struct GreatCirclePath
     /// the equator going northward. Values of various parameters at the node
     /// are used extensively in other calculations.
     /// </remarks>
-    public readonly double NodeAngle => _nodeAngle;
+    public readonly double NodeAngle;
 
     private readonly double _sinNodeAzi;
     private readonly double _cosNodeAzi;
@@ -113,7 +79,7 @@ public readonly struct GreatCirclePath
     /// <summary>
     /// Construct a great circle path from a given coordinate and direction.
     /// </summary>
-    /// <param name="coordinate">Coordinate representing the starting point.</param>
+    /// <param name="initialCoordinate">Coordinate representing the starting point.</param>
     /// <param name="initialAzimuth">
     /// Direction (azimuth) of the path at the starting point.
     /// </param>
@@ -121,28 +87,29 @@ public readonly struct GreatCirclePath
     /// Purely polar paths are not currently implemented. This means that the azimuth
     /// should not be a multiple of 180 (purely northward or southward).
     /// </remarks>
-    public GreatCirclePath(Coordinate coordinate, double initialAzimuth)
+    public GreatCirclePath(Coordinate initialCoordinate, double initialAzimuth)
     {
-        InitialCoordinate = coordinate;
-        InitialAzimuth = initialAzimuth;
+        InitialCoordinate = initialCoordinate;
+        InitialAzimuth = AngleUtilities.NormalizeToAzimuth(initialAzimuth);
 
         // Calculate the ascending node
         (double sinInitLat, double cosInitLat)
-            = Utilities.SinCosWithDegrees(InitialLatitude);
+            = AngleUtilities.SinCosWithDegrees(InitialLatitude);
         double tanInitLat = sinInitLat / cosInitLat;
         (double sinInitAzi, double cosInitAzi)
-            = Utilities.SinCosWithDegrees(InitialAzimuth);
+            = AngleUtilities.SinCosWithDegrees(InitialAzimuth);
         _sinNodeAzi = sinInitAzi * cosInitLat;
         _cosNodeAzi = Math.Sqrt(1 - _sinNodeAzi * _sinNodeAzi);
         _tanNodeAzi = _sinNodeAzi / _cosNodeAzi;
-        _nodeAzimuth = Utilities.Atan2ToDegrees(_sinNodeAzi, _cosNodeAzi);
+        NodeAzimuth = AngleUtilities.NormalizeToAzimuth(
+            AngleUtilities.Atan2ToDegrees(_sinNodeAzi, _cosNodeAzi));
         
-        (double sinNodeAngle, double cosNodeAngle, _nodeAngle)
-            = Utilities.SinCosAngleFromAtan2(tanInitLat, cosInitAzi);
+        (double sinNodeAngle, double cosNodeAngle, NodeAngle)
+            = AngleUtilities.SinCosAngleFromAtan2(tanInitLat, cosInitAzi);
 
-        double nodeLonDiff = Utilities.Atan2ToDegrees(
+        double nodeLonDiff = AngleUtilities.Atan2ToDegrees(
             _sinNodeAzi * sinNodeAngle, cosNodeAngle);
-        _nodeLongitude = InitialLongitude - nodeLonDiff;
+        NodeLongitude = InitialLongitude - nodeLonDiff;
     }
 
     /// <summary>
@@ -184,7 +151,7 @@ public readonly struct GreatCirclePath
             fmt = "F2";
 
         string coordString = InitialCoordinate.ToString(fmt);
-        string aziFormat = $"{{0:{fmt}}}{Angles.Degree}";
+        string aziFormat = $"{{0:{fmt}}}{AngleUtilities.Degree}";
         string aziString = string.Format(aziFormat, InitialAzimuth);
         return $"{coordString}; {aziString}";
     }
@@ -194,38 +161,38 @@ public readonly struct GreatCirclePath
     /// </summary>
     /// <param name="angle">The central angle from the starting point in degrees.</param>
     /// <returns>The new <c>Coordinate</c> location and azimuth.</returns>
-    public (Coordinate, double) DisplaceByAngle(double angle)
+    public GreatCirclePath DisplaceByAngle(double angle)
     {
         (double sinAngle, double cosAngle)
-            = Utilities.SinCosWithDegrees(angle + _nodeAngle);
+            = AngleUtilities.SinCosWithDegrees(angle + NodeAngle);
         double sinLat = _cosNodeAzi * sinAngle;
         double cosLat = Math.Sqrt(1 - sinLat * sinLat);
-        double latitude = Utilities.Atan2ToDegrees(sinLat, cosLat);
+        double latitude = AngleUtilities.Atan2ToDegrees(sinLat, cosLat);
 
-        double lonDiff = Utilities.Atan2ToDegrees(_sinNodeAzi * sinAngle, cosAngle);
-        double longitude = lonDiff + _nodeLongitude;
+        double lonDiff = AngleUtilities.Atan2ToDegrees(_sinNodeAzi * sinAngle, cosAngle);
+        double longitude = lonDiff + NodeLongitude;
 
-        double azimuth = Utilities.Atan2ToDegrees(_sinNodeAzi / _cosNodeAzi, cosAngle);
-        return (new Coordinate(latitude, longitude), azimuth);
+        double azimuth = AngleUtilities.Atan2ToDegrees(_sinNodeAzi / _cosNodeAzi, cosAngle);
+        return new(latitude, longitude, azimuth);
     }
 
-    /// <summary>
-    /// Find the point on the path at a given longitude.
-    /// </summary>
-    /// <param name="longitude">Longitude in degrees of the new point.</param>
-    /// <returns>The latitude and azimuth of the path at that point in degrees.</returns>
-    public (double, double) DisplaceToLongitude(double longitude)
-    {
-        (double sinLonDiff, double cosLonDiff)
-            = Utilities.SinCosWithDegrees(longitude - _nodeLongitude);
-        double latitude = Utilities.Atan2ToDegrees(sinLonDiff / _tanNodeAzi, 1);
+    ///// <summary>
+    ///// Find the point on the path at a given longitude.
+    ///// </summary>
+    ///// <param name="longitude">Longitude in degrees of the new point.</param>
+    ///// <returns>The latitude and azimuth of the path at that point in degrees.</returns>
+    //public (double, double) DisplaceToLongitude(double longitude)
+    //{
+    //    (double sinLonDiff, double cosLonDiff)
+    //        = DoubleUtilities.SinCosWithDegrees(longitude - _nodeLongitude);
+    //    double latitude = DoubleUtilities.Atan2ToDegrees(sinLonDiff / _tanNodeAzi, 1);
 
-        double scale = Math.Sqrt(1 - _cosNodeAzi * _cosNodeAzi * cosLonDiff * cosLonDiff);
-        double azimuth = Utilities.Atan2ToDegrees(
-            _tanNodeAzi,
-            _sinNodeAzi * cosLonDiff / scale);
-        return (latitude, azimuth);
-    }
+    //    double scale = Math.Sqrt(1 - _cosNodeAzi * _cosNodeAzi * cosLonDiff * cosLonDiff);
+    //    double azimuth = DoubleUtilities.Atan2ToDegrees(
+    //        _tanNodeAzi,
+    //        _sinNodeAzi * cosLonDiff / scale);
+    //    return (latitude, azimuth);
+    //}
 
     /// <summary>
     /// Construct the great circle path between two points.
@@ -255,22 +222,22 @@ public readonly struct GreatCirclePath
                 "Great circle paths through the poles have not been implemented yet");
 
         double lonDiff = final.Longitude - initial.Longitude;
-        if (Utilities.IsCloseTo(lonDiff % 180, 0) || Utilities.IsCloseTo(lonDiff % 180, 180))
+        if (CloseToUtilities.IsCloseTo(lonDiff % 180, 0) || CloseToUtilities.IsCloseTo(lonDiff % 180, 180))
             throw new NotImplementedException(
                 "Meridional great circle paths have not been implemented yet");
 
         // Need to calculate the correct initial azimuth
-        (double sinLonDiff, double cosLonDiff) = Utilities.SinCosWithDegrees(lonDiff);
-        (double sinInitLat, double cosInitLat) = Utilities.SinCosWithDegrees(initial.Latitude);
-        (double sinFinalLat, double cosFinalLat) = Utilities.SinCosWithDegrees(final.Latitude);
+        (double sinLonDiff, double cosLonDiff) = AngleUtilities.SinCosWithDegrees(lonDiff);
+        (double sinInitLat, double cosInitLat) = AngleUtilities.SinCosWithDegrees(initial.Latitude);
+        (double sinFinalLat, double cosFinalLat) = AngleUtilities.SinCosWithDegrees(final.Latitude);
         double y = cosFinalLat * sinLonDiff;
         double x = cosInitLat * sinFinalLat - sinInitLat * cosFinalLat * cosLonDiff;
-        double initialAzimuth = Utilities.Atan2ToDegrees(y, x);
+        double initialAzimuth = AngleUtilities.Atan2ToDegrees(y, x);
 
         // Calculate distance between points
         y = Math.Sqrt(y * y + x * x);
         x = sinInitLat * sinFinalLat + cosInitLat * cosFinalLat * cosLonDiff;
-        double angle = Utilities.Atan2ToDegrees(y, x);
+        double angle = AngleUtilities.Atan2ToDegrees(y, x);
         return (new GreatCirclePath(initial, initialAzimuth), angle);
     }
 

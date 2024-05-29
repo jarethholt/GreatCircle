@@ -11,7 +11,7 @@ public class AnglesTests
         double angle = 120.87;
         int expectedDegrees = 120;
         double expectedMinutes = 52.2;
-        (int actualDegrees, double actualMinutes) = Angles.DegreesToDegreeMinutes(angle);
+        (int actualDegrees, double actualMinutes) = AngleUtilities.DegreesToDegreeMinutes(angle);
         Assert.Equal(expectedDegrees, actualDegrees);
         Assert.Equal(expectedMinutes, actualMinutes, precision: 2);
     }
@@ -25,7 +25,7 @@ public class AnglesTests
         double angle = -120.87;
         int expectedDegrees = -120;
         double expectedMinutes = 52.2;
-        (int actualDegrees, double actualMinutes) = Angles.DegreesToDegreeMinutes(angle);
+        (int actualDegrees, double actualMinutes) = AngleUtilities.DegreesToDegreeMinutes(angle);
         Assert.Equal(expectedDegrees, actualDegrees);
         Assert.Equal(expectedMinutes, actualMinutes, precision: 2);
     }
@@ -41,7 +41,7 @@ public class AnglesTests
         int expectedMinutes = 52;
         double expectedSeconds = 12;
         (int actualDegrees, int actualMinutes, double actualSeconds)
-            = Angles.DegreesToDegreeSeconds(angle);
+            = AngleUtilities.DegreesToDegreeSeconds(angle);
         Assert.Equal(expectedDegrees, actualDegrees);
         Assert.Equal(expectedMinutes, actualMinutes);
         Assert.Equal(expectedSeconds, actualSeconds, precision: 2);
@@ -58,7 +58,7 @@ public class AnglesTests
         int expectedMinutes = 52;
         double expectedSeconds = 12;
         (int actualDegrees, int actualMinutes, double actualSeconds)
-            = Angles.DegreesToDegreeSeconds(angle);
+            = AngleUtilities.DegreesToDegreeSeconds(angle);
         Assert.Equal(expectedDegrees, actualDegrees);
         Assert.Equal(expectedMinutes, actualMinutes);
         Assert.Equal(expectedSeconds, actualSeconds, precision: 2);
@@ -73,7 +73,7 @@ public class UtilitiesTests
     [Fact]
     public void IsCloseTo_NearTarget()
     {
-        Assert.True(Utilities.IsCloseTo(1 - 1e-6, 1));
+        Assert.True(CloseToUtilities.IsCloseTo(1 - 1e-6, 1));
     }
 
     /// <summary>
@@ -82,7 +82,7 @@ public class UtilitiesTests
     [Fact]
     public void IsCloseTo_FarFromTarget()
     {
-        Assert.False(Utilities.IsCloseTo(1 - 2.1e-6, 1));
+        Assert.False(CloseToUtilities.IsCloseTo(1 - 2.1e-6, 1));
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ public class UtilitiesTests
     [Fact]
     public void IsCloseTo_NearZero()
     {
-        Assert.True(Utilities.IsCloseTo(1e-8, 0));
+        Assert.True(CloseToUtilities.IsCloseTo(1e-8, 0));
     }
 
     /// <summary>
@@ -100,7 +100,7 @@ public class UtilitiesTests
     [Fact]
     public void IsCloseTo_FarFromZero()
     {
-        Assert.False(Utilities.IsCloseTo(1.1e-8, 0));
+        Assert.False(CloseToUtilities.IsCloseTo(1.1e-8, 0));
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ public class UtilitiesTests
     [Fact]
     public void AreClose_NearEachOther()
     {
-        Assert.True(Utilities.AreClose(1 - 1e-8, 1 + 1e-8));
+        Assert.True(CloseToUtilities.AreClose(1 - 1e-8, 1 + 1e-8));
     }
 
     /// <summary>
@@ -118,7 +118,7 @@ public class UtilitiesTests
     [Fact]
     public void AreClose_FarFromEachOther()
     {
-        Assert.False(Utilities.AreClose(1 - 1e-8, 1 + 1.1e-8));
+        Assert.False(CloseToUtilities.AreClose(1 - 1e-8, 1 + 1.1e-8));
     }
 
     /// <summary>
@@ -127,7 +127,7 @@ public class UtilitiesTests
     [Fact]
     public void AreClose_NearZero_True()
     {
-        Assert.True(Utilities.AreClose(5e-9, -5e-9));
+        Assert.True(CloseToUtilities.AreClose(5e-9, -5e-9));
     }
 
     /// <summary>
@@ -136,6 +136,6 @@ public class UtilitiesTests
     [Fact]
     public void AreClose_NearZero_False()
     {
-        Assert.False(Utilities.AreClose(5.1e-9, -5e-9));
+        Assert.False(CloseToUtilities.AreClose(5.1e-9, -5e-9));
     }
 }
