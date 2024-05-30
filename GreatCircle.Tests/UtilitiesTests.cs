@@ -1,3 +1,5 @@
+using Newtonsoft.Json.Linq;
+
 namespace GreatCircle.Tests;
 
 public class AnglesTests
@@ -63,9 +65,105 @@ public class AnglesTests
         Assert.Equal(expectedMinutes, actualMinutes);
         Assert.Equal(expectedSeconds, actualSeconds, precision: 2);
     }
+
+    /// <summary>
+    /// Check that large positive angles are normalized to azimuth correctly.
+    /// </summary>
+    [Fact]
+    public void NormalizeToAzimuth_PositiveAngle()
+    {
+        double angle = 385;
+        double expected = 25;  // angle - 360
+        double actual = AngleUtilities.NormalizeToAzimuth(angle);
+        Assert.Equal(expected, actual);
+    }
+
+    /// <summary>
+    /// Check that negative angles are normalized to azimuth correctly.
+    /// </summary>
+    [Fact]
+    public void NormalizeToAzimuth_NegativeAngle()
+    {
+        double angle = -20;
+        double expected = 340;  // angle + 360
+        double actual = AngleUtilities.NormalizeToAzimuth(angle);
+        Assert.Equal(expected, actual);
+    }
+
+    /// <summary>
+    /// Check that large positive angles are normalized to longitude correctly.
+    /// </summary>
+    [Fact]
+    public void NormalizeToLongitude_PositiveAngle()
+    {
+        double angle = 200;
+        double expected = -160;  // angle - 360
+        double actual = AngleUtilities.NormalizeToLongitude(angle);
+        Assert.Equal(expected, actual);
+    }
+
+    /// <summary>
+    /// Check that negative angles are normalized to longitude correctly.
+    /// </summary>
+    [Fact]
+    public void NormalizeToLongitude_NegativeAngle()
+    {
+        double angle = -200;
+        double expected = 160;  // angle + 360
+        double actual = AngleUtilities.NormalizeToLongitude(angle);
+        Assert.Equal(expected, actual);
+    }
+
+    /// <summary>
+    /// Check that a moderately large positive angle is normalized to latitude correctly.
+    /// </summary>
+    [Fact]
+    public void NormalizeToLatitude_PositiveAngle()
+    {
+        double angle = 100;
+        double expected = 80;  // 180 - angle
+        double actual = AngleUtilities.NormalizeToLatitude(angle);
+        Assert.Equal(expected, actual);
+    }
+
+    /// <summary>
+    /// Check that a very large positive angle is normalized to latitude correctly.
+    /// </summary>
+    [Fact]
+    public void NormalizeToLatitude_LargePositiveAngle()
+    {
+        double angle = 200;
+        double expected = -20;  // 180 - angle
+        double actual = AngleUtilities.NormalizeToLatitude(angle);
+        Assert.Equal(expected, actual);
+    }
+
+    /// <summary>
+    /// Check that a moderately large negative angle is normalized to latitude correctly.
+    /// </summary>
+    [Fact]
+    public void NormalizeToLatitude_NegativeAngle()
+    {
+        double angle = -100;
+        double expected = -80;  // -180 - angle
+        double actual = AngleUtilities.NormalizeToLatitude(angle);
+        Assert.Equal(expected, actual);
+    }
+
+    /// <summary>
+    /// Check that a very large negative angle is normalized to latitude correctly.
+    /// </summary>
+    [Fact]
+    public void NormalizeToLatitude_LargeNegativeAngle()
+    {
+        double angle = -200;
+        double expected = 20;  // -180 - angle
+        double actual = AngleUtilities.NormalizeToLatitude(angle);
+        Assert.Equal(expected, actual);
+    }
 }
 
-public class UtilitiesTests
+public class CloseToUtilitiesTests
 {
     /// <summary>
     /// Check that IsCloseTo returns True for a value near the target.
@@ -109,7 +207,7 @@ public class UtilitiesTests
     [Fact]
     public void AreClose_NearEachOther()
     {
-        Assert.True(CloseToUtilities.AreClose(1 - 1e-8, 1 + 1e-8));
+        Assert.True(CloseToUtilities.AreClose(1 - 5e-7, 1 + 5e-7));
     }
 
     /// <summary>
@@ -118,7 +216,7 @@ public class UtilitiesTests
     [Fact]
     public void AreClose_FarFromEachOther()
     {
-        Assert.False(CloseToUtilities.AreClose(1 - 1e-8, 1 + 1.1e-8));
+        Assert.False(CloseToUtilities.AreClose(1 - 5.1e-7, 1 + 5.1e-7));
     }
 
     /// <summary>

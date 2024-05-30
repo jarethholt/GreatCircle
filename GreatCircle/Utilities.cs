@@ -45,17 +45,17 @@ public static class AngleUtilities
 
     /// <summary>
     /// Normalize a value to conform to azimuth conventions. The azimuth is typically measured
-    /// clockwise from due North, i.e. in the range [0, 360).
+    /// clockwise from due North, i.e. in the range (0, 360].
     /// </summary>
     /// <param name="value">The value to normalize.</param>
-    /// <returns>An equivalent value in the range [0, 360).</returns>
-    /// <remarks>
-    /// The azimuth is actually usually given the range (0, 360], with the origin moved to the
-    /// end. However when using floating-point values this distinction seems irrelevant. Thus
-    /// this function leaves the origin in, which makes it a single call to Math.IEEERemainder.
-    /// </remarks>
-    public static double NormalizeToAzimuth(double value) =>
-        Math.IEEERemainder(value, 360);
+    /// <returns>An equivalent value in the range (0, 360].</returns>
+    public static double NormalizeToAzimuth(double value)
+    {
+        double result = value % 360;
+        result = (result < 0) ? result + 360 : result;
+        result = (result == 0) ? 360 : result;
+        return result;
+    }
 
     /// <summary>
     /// Normalize a value to conform to longitude conventions. Longitudes are typically given
