@@ -1,15 +1,29 @@
-﻿namespace GreatCircle.Tests;
+﻿using System.Globalization;
+
+namespace GreatCircle.Tests;
 
 public class CoordinateTests
 {
     /// <summary>
-    /// Check for <c>ArgumentOutOfRangeException</c> when the latitude is outside of [-90, 90].
+    /// Check that a latitude above the range [-90, 90] is reset to this range.
     /// </summary>
     [Fact]
-    public void Coordinates_Latitude_OutOfRange()
+    public void Coordinates_Latitude_PositiveResetToRange()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(
-            () => new Coordinate(100, 0));
+        double latitude = 90 + 20;
+        double expected = 90 - 20;
+        Assert.Equal(expected, new Coordinate(latitude, 0).Latitude);
+    }
+
+    /// <summary>
+    /// Check that a latitude below the range [-90, 90] is reset to this range.
+    /// </summary>
+    [Fact]
+    public void Coordinates_Latitude_NegativeResetToRange()
+    {
+        double latitude = -90 - 20;
+        double expected = -90 + 20;
+        Assert.Equal(expected, new Coordinate(latitude, 0).Latitude);
     }
 
     /// <summary>
@@ -107,9 +121,11 @@ public class CoordinateTests
     [Fact]
     public void String_Origin_DefaultFormat()
     {
-        Assert.Equal(
-            $"0.00{AngleUtilities.Degree} N, 0.00{AngleUtilities.Degree} E",
-            Coordinate.Origin.ToString());
+        double latitude = 0;
+        double longitude = 0;
+        string expected =
+            $"{latitude:F2}{AngleUtilities.Degree} N, {longitude:F2}{AngleUtilities.Degree} E";
+        Assert.Equal(expected, Coordinate.Origin.ToString());
     }
 
     /// <summary>
@@ -118,9 +134,11 @@ public class CoordinateTests
     [Fact]
     public void String_Origin_CustomFormat()
     {
-        Assert.Equal(
-            $"0{AngleUtilities.Degree} N, 0{AngleUtilities.Degree} E",
-            Coordinate.Origin.ToString("F0"));
+        double latitude = 0;
+        double longitude = 0;
+        string expected =
+            $"{latitude:F0}{AngleUtilities.Degree} N, {longitude:F0}{AngleUtilities.Degree} E";
+        Assert.Equal(expected, Coordinate.Origin.ToString("F0"));
     }
 
     /// <summary>
@@ -129,9 +147,11 @@ public class CoordinateTests
     [Fact]
     public void String_NorthPole_DefaultFormat()
     {
-        Assert.Equal(
-            $"90.00{AngleUtilities.Degree} N, 0.00{AngleUtilities.Degree} E",
-            Coordinate.NorthPole.ToString());
+        double latitude = 90;
+        double longitude = 0;
+        string expected =
+            $"{latitude:F2}{AngleUtilities.Degree} N, {longitude:F2}{AngleUtilities.Degree} E";
+        Assert.Equal(expected, Coordinate.NorthPole.ToString());
     }
 
     /// <summary>
@@ -140,9 +160,11 @@ public class CoordinateTests
     [Fact]
     public void String_SouthPole_DefaultFormat()
     {
-        Assert.Equal(
-            $"90.00{AngleUtilities.Degree} S, 0.00{AngleUtilities.Degree} E",
-            Coordinate.SouthPole.ToString());
+        double latitude = -90;
+        double longitude = 0;
+        string expected =
+            $"{-latitude:F2}{AngleUtilities.Degree} S, {longitude:F2}{AngleUtilities.Degree} E";
+        Assert.Equal(expected, Coordinate.SouthPole.ToString());
     }
 
     /// <summary>
